@@ -24,8 +24,8 @@ const REPOSITORY: &'static str = "https://github.com/tensorflow/tensorflow.git";
 const FRAMEWORK_TARGET: &'static str = "tensorflow:libtensorflow_framework.so";
 const TARGET: &'static str = "tensorflow:libtensorflow.so";
 // `VERSION` and `TAG` are separate because the tag is not always `'v' + VERSION`.
-const VERSION: &'static str = "1.13.1";
-const TAG: &'static str = "v1.13.1";
+const VERSION: &'static str = "1.15.0";
+const TAG: &'static str = "v1.15.0";
 const MIN_BAZEL: &'static str = "0.5.4";
 
 macro_rules! get(($name:expr) => (ok!(env::var($name))));
@@ -150,11 +150,17 @@ fn install_prebuilt() {
         }
     }
 
+    let lib_extension = match os {
+        "darwin" => "dylib",
+        "windows" => "dll",
+        _ => "so",
+    };
+
     // Extract the tarball.
     let unpacked_dir = download_dir.join(base_name);
     let lib_dir = unpacked_dir.join("lib");
-    let framework_library_file = format!("lib{}.so", FRAMEWORK_LIBRARY);
-    let library_file = format!("lib{}.so", LIBRARY);
+    let framework_library_file = format!("lib{}.{}", FRAMEWORK_LIBRARY, lib_extension);
+    let library_file = format!("lib{}.{}", LIBRARY, lib_extension);
     let framework_library_full_path = lib_dir.join(&framework_library_file);
     let library_full_path = lib_dir.join(&library_file);
     if !framework_library_full_path.exists() || !library_full_path.exists() {
